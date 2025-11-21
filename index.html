@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>化学方程式配平练习</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            background: linear-gradient(135deg, #e0f7fa 0%, #bbdefb 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mobile-notice {
+            display: none;
+            text-align: center;
+            background-color: #ffeb3b;
+            color: #333;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) and (orientation: portrait) {
+            .mobile-notice {
+                display: block;
+            }
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            flex: 1;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #e0e0e0;
+        }
+        
+        h1 {
+            color: #2E7D32;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .description {
+            color: #666;
+            font-size: 1.1em;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .difficulty-selector {
+            margin: 25px 0;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .difficulty-selector select {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #4CAF50;
+            font-size: 1em;
+            background-color: #f9f9f9;
+            transition: all 0.3s;
+        }
+        
+        .difficulty-selector select:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        
+        .question-info {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 1.1em;
+            background-color: #e8f5e9;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .equation-container {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #e0e0e0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .equation {
+            font-size: 1.6em;
+            text-align: center;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        
+        .coefficient-input {
+            width: 60px;
+            height: 40px;
+            text-align: center;
+            font-size: 1.3em;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            margin: 0 8px;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: #d32f2f; /* 红色 */
+        }
+        
+        .coefficient-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+            transform: scale(1.05);
+        }
+        
+        /* 设置输入框中数字的样式 */
+        .coefficient-input::placeholder {
+            color: #d32f2f;
+            font-weight: bold;
+            opacity: 0.7;
+        }
+        
+        .chemical-formula {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .subscript {
+            font-size: 0.7em;
+            vertical-align: sub;
+            position: relative;
+            bottom: -0.2em;
+        }
+        
+        .arrow {
+            font-size: 1.8em;
+            margin: 0 20px;
+            color: #2E7D32;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .arrow::before {
+            content: "⟶";
+        }
+        
+        .plus {
+            margin: 0 15px;
+            font-size: 1.4em;
+            color: #666;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:hover {
+            background-color: #388E3C;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.secondary {
+            background-color: #2196F3;
+        }
+        
+        button.secondary:hover {
+            background-color: #1976D2;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            font-size: 1.1em;
+            text-align: center;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .correct {
+            background-color: #E8F5E9;
+            border: 2px solid #4CAF50;
+            color: #2E7D32;
+        }
+        
+        .incorrect {
+            background-color: #FFEBEE;
+            border: 2px solid #F44336;
+            color: #C62828;
+        }
+        
+        .tips {
+            background-color: #E3F2FD;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 2px solid #bbdefb;
+        }
+        
+        .tips h3 {
+            color: #1565C0;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tips h3::before {
+            content: "💡";
+            font-size: 1.2em;
+        }
+        
+        .tips ul {
+            padding-left: 20px;
+        }
+        
+        .tips li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .progress-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 30px;
+            padding: 15px;
+        }
+        
+        .footer-text {
+            font-size: 1.2em;
+            color: #2E7D32;
+            font-weight: bold;
+            /* 移除了斜体样式 */
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .equation {
+                font-size: 1.3em;
+                flex-wrap: wrap;
+                white-space: normal;
+                justify-content: flex-start;
+            }
+            
+            .coefficient-input {
+                width: 50px;
+                height: 35px;
+                font-size: 1.1em;
+            }
+            
+            .arrow {
+                font-size: 1.5em;
+                margin: 0 10px;
+            }
+            
+            .plus {
+                margin: 0 10px;
+                font-size: 1.2em;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .difficulty-selector {
+                flex-direction: column;
+            }
+            
+            .footer-text {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-notice">手机建议横屏观看</div>
+    
+    <div class="container">
+        <header>
+            <h1>化学方程式配平练习</h1>
+            <p class="description">请为以下化学方程式配平，在输入框中填入适当的系数。每个难度级别包含20道题目，题目随机出现。</p>
+        </header>
+        
+        <div class="difficulty-selector">
+            <label for="difficulty" style="font-weight: bold; font-size: 1.1em;">选择难度：</label>
+            <select id="difficulty">
+                <option value="easy" selected>简单</option>
+                <option value="medium">中等</option>
+                <option value="hard">困难</option>
+            </select>
+        </div>
+        
+        <div class="progress-container">
+            <div class="question-info">
+                <span id="questionCounter">题目 1/20</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+        </div>
+        
+        <div class="equation-container">
+            <div class="equation" id="equationDisplay">
+                <!-- 方程式的HTML将由JavaScript动态生成 -->
+            </div>
+            
+            <div class="controls">
+                <button id="checkBtn">检查答案</button>
+                <button id="resetBtn" class="secondary">重置</button>
+                <button id="newEquationBtn">随机新题</button>
+            </div>
+            
+            <div class="feedback" id="feedback"></div>
+        </div>
+        
+        <div class="tips">
+            <h3>配平技巧：</h3>
+            <ul>
+                <li>从最复杂的化合物开始配平 - 通常含有多种元素的化合物</li>
+                <li>先配平金属原子，再配平非金属原子 - 金属通常更容易配平</li>
+                <li>氢原子和氧原子通常最后配平 - 它们经常出现在多个化合物中</li>
+                <li>使用最小公倍数法确定系数 - 找到原子数的最小公倍数</li>
+                <li>检查所有原子的数量在反应前后是否相等 - 确保方程式平衡</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <span class="footer-text">含苞只为待放</span>
+    </div>
+
+    <script>
+        // 化学方程式数据 - 每个难度20道题
+        const equations = {
+            easy: [
+                { equation: "H2 + O2 → H2O", coefficients: [2, 1, 2] },
+                { equation: "N2 + H2 → NH3", coefficients: [1, 3, 2] },
+                { equation: "Fe + O2 → Fe2O3", coefficients: [4, 3, 2] },
+                { equation: "Na + Cl2 → NaCl", coefficients: [2, 1, 2] },
+                { equation: "Mg + O2 → MgO", coefficients: [2, 1, 2] },
+                { equation: "Ca + H2O → Ca(OH)2 + H2", coefficients: [1, 2, 1, 1] },
+                { equation: "Zn + HCl → ZnCl2 + H2", coefficients: [1, 2, 1, 1] },
+                { equation: "Al + O2 → Al2O3", coefficients: [4, 3, 2] },
+                { equation: "CuO + H2 → Cu + H2O", coefficients: [1, 1, 1, 1] },
+                { equation: "CH4 + O2 → CO2 + H2O", coefficients: [1, 2, 1, 2] },
+                { equation: "K + H2O → KOH + H2", coefficients: [2, 2, 2, 1] },
+                { equation: "P + O2 → P2O5", coefficients: [4, 5, 2] },
+                { equation: "S + O2 → SO2", coefficients: [1, 1, 1] },
+                { equation: "C + O2 → CO2", coefficients: [1, 1, 1] },
+                { equation: "Fe + S → FeS", coefficients: [1, 1, 1] },
+                { equation: "NaOH + HCl → NaCl + H2O", coefficients: [1, 1, 1, 1] },
+                { equation: "CaO + H2O → Ca(OH)2", coefficients: [1, 1, 1] },
+                { equation: "CO2 + H2O → H2CO3", coefficients: [1, 1, 1] },
+                { equation: "H2 + Cl2 → HCl", coefficients: [1, 1, 2] },
+                { equation: "NH3 + HCl → NH4Cl", coefficients: [1, 1, 1] }
+            ],
+            medium: [
+                { equation: "C3H8 + O2 → CO2 + H2O", coefficients: [1, 5, 3, 4] },
+                { equation: "Al + HCl → AlCl3 + H2", coefficients: [2, 6, 2, 3] },
+                { equation: "KClO3 → KCl + O2", coefficients: [2, 2, 3] },
+                { equation: "Fe2O3 + CO → Fe + CO2", coefficients: [1, 3, 2, 3] },
+                { equation: "NH4NO3 → N2O + H2O", coefficients: [1, 1, 2] },
+                { equation: "NaOH + H2SO4 → Na2SO4 + H2O", coefficients: [2, 1, 1, 2] },
+                { equation: "CaCO3 → CaO + CO2", coefficients: [1, 1, 1] },
+                { equation: "AgNO3 + NaCl → AgCl + NaNO3", coefficients: [1, 1, 1, 1] },
+                { equation: "H2SO4 + NaOH → Na2SO4 + H2O", coefficients: [1, 2, 1, 2] },
+                { equation: "Fe + CuSO4 → FeSO4 + Cu", coefficients: [1, 1, 1, 1] },
+                { equation: "Zn + CuSO4 → ZnSO4 + Cu", coefficients: [1, 1, 1, 1] },
+                { equation: "CaCl2 + Na2CO3 → CaCO3 + NaCl", coefficients: [1, 1, 1, 2] },
+                { equation: "BaCl2 + H2SO4 → BaSO4 + HCl", coefficients: [1, 1, 1, 2] },
+                { equation: "Cu + AgNO3 → Cu(NO3)2 + Ag", coefficients: [1, 2, 1, 2] },
+                { equation: "NH3 + O2 → N2 + H2O", coefficients: [4, 3, 2, 6] },
+                { equation: "C2H4 + O2 → CO2 + H2O", coefficients: [1, 3, 2, 2] },
+                { equation: "C2H2 + O2 → CO2 + H2O", coefficients: [2, 5, 4, 2] },
+                { equation: "Fe + H2SO4 → FeSO4 + H2", coefficients: [1, 1, 1, 1] },
+                { equation: "Na2CO3 + HCl → NaCl + H2O + CO2", coefficients: [1, 2, 2, 1, 1] },
+                { equation: "KOH + H3PO4 → K3PO4 + H2O", coefficients: [3, 1, 1, 3] }
+            ],
+            hard: [
+                { equation: "FeS2 + O2 → Fe2O3 + SO2", coefficients: [4, 11, 2, 8] },
+                { equation: "C2H5OH + O2 → CO2 + H2O", coefficients: [1, 3, 2, 3] },
+                { equation: "NH3 + O2 → NO + H2O", coefficients: [4, 5, 4, 6] },
+                { equation: "KMnO4 → K2MnO4 + MnO2 + O2", coefficients: [2, 1, 1, 1] },
+                { equation: "Cu + HNO3 → Cu(NO3)2 + NO + H2O", coefficients: [3, 8, 3, 2, 4] },
+                { equation: "K2Cr2O7 + HCl → KCl + CrCl3 + Cl2 + H2O", coefficients: [1, 14, 2, 2, 3, 7] },
+                { equation: "P + HNO3 + H2O → H3PO4 + NO", coefficients: [3, 5, 2, 3, 5] },
+                { equation: "Fe2(SO4)3 + KSCN → K3Fe(SCN)6 + K2SO4", coefficients: [1, 6, 2, 3] },
+                { equation: "KClO3 + HCl → KCl + Cl2 + H2O", coefficients: [1, 6, 1, 3, 3] },
+                { equation: "Na2S2O3 + I2 → Na2S4O6 + NaI", coefficients: [2, 1, 1, 2] },
+                { equation: "MnO2 + HCl → MnCl2 + Cl2 + H2O", coefficients: [1, 4, 1, 1, 2] },
+                { equation: "K2Cr2O7 + H2SO4 + FeSO4 → Cr2(SO4)3 + Fe2(SO4)3 + K2SO4 + H2O", coefficients: [1, 4, 6, 1, 3, 1, 4] },
+                { equation: "As2S3 + HNO3 + H2O → H3AsO4 + H2SO4 + NO", coefficients: [3, 28, 4, 6, 9, 28] },
+                { equation: "Cu2S + HNO3 → Cu(NO3)2 + H2SO4 + NO + H2O", coefficients: [3, 22, 6, 3, 10, 8] },
+                { equation: "Fe3O4 + KMnO4 + H2SO4 → Fe2(SO4)3 + MnSO4 + K2SO4 + H2O", coefficients: [10, 6, 24, 15, 6, 3, 24] },
+                { equation: "K4Fe(CN)6 + KMnO4 + H2SO4 → K2SO4 + Fe2(SO4)3 + MnSO4 + HNO3 + CO2 + H2O", coefficients: [10, 122, 299, 162, 5, 122, 60, 100, 188] },
+                { equation: "KClO3 + H2C2O4 → KCl + CO2 + H2O", coefficients: [2, 1, 2, 2, 1] },
+                { equation: "Na2S2O3 + Cl2 + H2O → Na2SO4 + HCl + S", coefficients: [1, 4, 5, 1, 8, 1] },
+                { equation: "Cu + H2SO4 → CuSO4 + SO2 + H2O", coefficients: [1, 2, 1, 1, 2] },
+                { equation: "KBr + KBrO3 + H2SO4 → Br2 + K2SO4 + H2O", coefficients: [5, 1, 3, 3, 3, 3] }
+            ]
+        };
+
+        // 当前显示的方程式
+        let currentEquation = null;
+        let currentDifficulty = 'easy'; // 默认设置为简单模式
+        let currentQuestionIndex = 0;
+        let questions = equations[currentDifficulty];
+        let usedQuestions = new Set();
+
+        // DOM元素
+        const equationDisplay = document.getElementById('equationDisplay');
+        const difficultySelect = document.getElementById('difficulty');
+        const questionCounter = document.getElementById('questionCounter');
+        const progressBar = document.getElementById('progressBar');
+        const checkBtn = document.getElementById('checkBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const newEquationBtn = document.getElementById('newEquationBtn');
+        const feedback = document.getElementById('feedback');
+
+        // 初始化
+        function init() {
+            loadRandomEquation();
+            
+            // 事件监听
+            difficultySelect.addEventListener('change', function() {
+                currentDifficulty = this.value;
+                questions = equations[currentDifficulty];
+                usedQuestions.clear();
+                loadRandomEquation();
+            });
+            
+            checkBtn.addEventListener('click', checkAnswer);
+            resetBtn.addEventListener('click', resetInputs);
+            newEquationBtn.addEventListener('click', loadRandomEquation);
+        }
+
+        // 将化学式转换为带有下标的HTML
+        function formatChemicalFormula(formula) {
+            // 将数字转换为下标
+            return formula.replace(/([A-Za-z])(\d+)/g, '$1<span class="subscript">$2</span>');
+        }
+
+        // 加载随机方程式
+        function loadRandomEquation() {
+            // 如果所有题目都已使用，重置使用记录
+            if (usedQuestions.size >= questions.length) {
+                usedQuestions.clear();
+            }
+            
+            // 随机选择一个未使用的题目
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * questions.length);
+            } while (usedQuestions.has(randomIndex));
+            
+            usedQuestions.add(randomIndex);
+            currentQuestionIndex = randomIndex;
+            currentEquation = questions[currentQuestionIndex];
+            
+            // 更新题目计数器
+            questionCounter.textContent = `题目 ${usedQuestions.size}/20`;
+            
+            // 更新进度条
+            progressBar.style.width = `${(usedQuestions.size / 20) * 100}%`;
+            
+            // 清空之前的输入框
+            equationDisplay.innerHTML = '';
+            
+            // 解析方程式并创建输入框
+            const parts = currentEquation.equation.split(' ');
+            let inputIndex = 0;
+            
+            parts.forEach(part => {
+                if (part === '→') {
+                    equationDisplay.innerHTML += `<span class="arrow"></span>`;
+                } else if (part === '+') {
+                    equationDisplay.innerHTML += `<span class="plus">+</span>`;
+                } else {
+                    // 格式化化学式，将数字转换为下标
+                    const formattedFormula = formatChemicalFormula(part);
+                    equationDisplay.innerHTML += `<input type="number" min="1" class="coefficient-input" id="coeff${inputIndex}" value="1"> <span class="chemical-formula">${formattedFormula}</span>`;
+                    inputIndex++;
+                }
+            });
+            
+            // 重置反馈
+            feedback.style.display = 'none';
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            const inputs = document.querySelectorAll('.coefficient-input');
+            let allCorrect = true;
+            let userCoefficients = [];
+            
+            // 收集用户输入的系数
+            inputs.forEach(input => {
+                const value = parseInt(input.value);
+                userCoefficients.push(value);
+                
+                if (isNaN(value) || value < 1) {
+                    allCorrect = false;
+                }
+            });
+            
+            // 验证系数
+            if (allCorrect) {
+                for (let i = 0; i < currentEquation.coefficients.length; i++) {
+                    if (userCoefficients[i] !== currentEquation.coefficients[i]) {
+                        allCorrect = false;
+                        break;
+                    }
+                }
+            }
+            
+            // 显示反馈
+            feedback.style.display = 'block';
+            if (allCorrect) {
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = '<strong>正确！</strong> 方程式配平成功。';
+                playCorrectSound();
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.innerHTML = '<strong>不正确。</strong> 请再试一次。';
+            }
+        }
+
+        // 播放正确音效
+        function playCorrectSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // 播放一个愉快的音调
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // 重置输入
+        function resetInputs() {
+            const inputs = document.querySelectorAll('.coefficient-input');
+            inputs.forEach(input => {
+                input.value = '1';
+            });
+            
+            feedback.style.display = 'none';
+        }
+
+        // 初始化应用
+        window.onload = init;
+    </script>
+</body>
+</html>
